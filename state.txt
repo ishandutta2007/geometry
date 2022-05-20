@@ -1,0 +1,15 @@
+
+GEDAAN
+1: cartesian_winding -> cartesian_winding_base
+NOG DOEN: namespace detail
+
+
+HIERVAN PR MAKEN (compatible met spherical)
+
+
+DAN DIT AANROEPEN VANUIT TurnInVIsitor
+MET ALS SIDE STRATEGY rounded
+
+DAN IS INSIDE ECHT INSIDE
+
+

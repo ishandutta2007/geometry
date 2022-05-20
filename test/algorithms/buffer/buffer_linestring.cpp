@@ -205,10 +205,10 @@ void test_all()
     test_one<linestring, polygon>("curve", curve, join_round, end_flat, 58.1944, 5.0, settings, 3.0);
     test_one<linestring, polygon>("curve", curve, join_miter, end_flat, 58.7371, 5.0, settings, 3.0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+// #if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<linestring, polygon>("tripod", tripod, join_miter, end_flat, 74.25, 3.0);
     test_one<linestring, polygon>("tripod", tripod, join_miter, end_round, 116.6336, 3.0);
-#endif
+// #endif
 
     test_one<linestring, polygon>("chained2", chained2, join_round, end_flat, 11.3137, 2.5, settings, 1.5);
     test_one<linestring, polygon>("chained3", chained3, join_round, end_flat, 16.9706, 2.5, settings, 1.5);

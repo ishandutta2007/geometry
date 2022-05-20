@@ -169,34 +169,20 @@ public:
             return true;
         }
 
-        if (state.code() == 1)
+        if (state.is_inside())
         {
             // It is WITHIN a piece, or on the piece border, but not
             // on the offsetted part of it.
 
-            // TODO - at further removing rescaling, this threshold can be
-            // adapted, or ideally, go.
-            // This threshold is minimized to the point where fragile
-            // unit tests of hard cases start to fail (5 in multi_polygon)
-            // But it is acknowlegded that such a threshold depends on the
-            // scale of the input.
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-            if (state.m_min_distance > 1.0e-4 || ! state.m_close_to_offset)
-#else
-            constexpr double zero = 0;
-            if (math::larger(state.m_min_distance, zero) || ! state.m_close_to_offset)
-#endif
-            {
-                Turn& mutable_turn = m_turns[turn.turn_index];
-                mutable_turn.is_turn_traversable = false;
+            Turn& mutable_turn = m_turns[turn.turn_index];
+            mutable_turn.is_turn_traversable = false;
 
-                // Keep track of the information if this turn was close
-                // to an offset (without threshold). Because if it was,
-                // it might have been classified incorrectly and in the
-                // pretraversal step, it can in hindsight be classified
-                // as "outside".
-                mutable_turn.close_to_offset = state.m_close_to_offset;
-            }
+            // Keep track of the information if this turn was close
+            // to an offset. Because if it was,
+            // it might have been classified incorrectly and in the
+            // pretraversal step, it can in hindsight be classified
+            // as "outside".
+            mutable_turn.close_to_offset = state.m_close_to_offset;
         }
 
         return true;

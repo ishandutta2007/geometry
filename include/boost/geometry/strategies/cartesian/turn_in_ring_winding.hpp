@@ -56,32 +56,46 @@ class turn_in_ring_winding
     //
 
 
+    using winding = strategy::within::cartesian_winding_base<typename side::services::default_strategy
+                        <cartesian_tag, CalculationType>::type, CalculationType> ;
+
 public:
 
     struct counter
     {
-        inline counter()
-            : m_count(0)
-            , m_min_distance(0)
-            , m_close_to_offset(false)
-        {}
+        typename winding::state_type my_state;
 
-        //! Returns -1 for outside, 1 for inside
-        inline int code() const
+        inline bool is_inside() const
         {
-            return m_count == 0 ? -1 : 1;
+            if (m_count >= 0) 
+            {
+                return false;
+            }
+
+            if (! m_close_to_offset)
+            {
+                return true;
+            }
+
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            return m_min_distance > 1.0e-4;
+#else
+            constexpr CalculationType zero = 0;
+            return math::larger(m_min_distance, zero);
+#endif
         }
 
         //! Counter, is increased if point is left of a segment (outside),
         //! and decreased if point is right of a segment (inside)
-        int m_count;
+        int m_count{0};
 
         //! Indicate an indication of distance. It is always set, unless
         //! the point is located on the border-part of the original.
         //! It is not guaranteed to be the minimum distance, because it is only
         //! calculated for a selection of the offsetted ring.
-        CalculationType m_min_distance;
-        bool m_close_to_offset;
+        CalculationType m_min_distance{0};
+        bool m_close_to_offset{false};
+        bool m_is_inside{false};
     };
 
     typedef counter state_type;
@@ -108,7 +122,7 @@ public:
     {
         if (place_on_ring == place_on_ring_offsetted)
         {
-            // Consider the point as "outside"
+            // Consider the point as "outside". After this the information isn't changed anymore.
             the_state.m_count = 0;
             the_state.m_close_to_offset = true;
             the_state.m_min_distance = 0;
@@ -148,6 +162,9 @@ public:
                              place_on_ring_type place_on_ring,
                              counter& the_state)
     {
+        winding::apply(point, s1, s2, the_state.my_state);
+
+
         CalculationType const px = get<0>(point);
         CalculationType const s1x = get<0>(s1);
         CalculationType const s2x = get<0>(s2);
@@ -181,6 +198,7 @@ public:
             // NOTE: this is also done if it is NOT in the horizontal range.
             the_state.m_min_distance = -dm.measure;
             the_state.m_close_to_offset = true;
+            the_state.m_is_inside = true;
         }
 
         if (in_horizontal_range)
